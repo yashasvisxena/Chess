@@ -6,7 +6,8 @@ export class Game {
   public player2: WebSocket;
   public board: Chess;
   public moves: string[];
-  public startTime: Date;
+  private startTime: Date;
+  private moveCount: number = 0;
 
   constructor(player1: WebSocket, player2: WebSocket) {
     this.player1 = player1;
@@ -28,12 +29,12 @@ export class Game {
     );
   }
 
-  makeMove(socket: WebSocket, move: { from: string, to: string }) {
+  makeMove(socket: WebSocket, move: { from: string; to: string }) {
     //validation the type of move using zod
-    if (this.board.moves.length % 2 === 0 && socket != this.player1) {
+    if (this.moveCount % 2 === 0 && socket != this.player1) {
       return;
     }
-    if (this.board.moves.length % 2 === 1 && socket != this.player2) {
+    if (this.moveCount % 2 === 1 && socket != this.player2) {
       return;
     }
 
@@ -66,10 +67,11 @@ export class Game {
       );
     }
 
-    if (this.board.moves.length % 2 === 0) {
+    if (this.moveCount % 2 === 0) {
       this.player2.send(JSON.stringify({ type: MOVE, payload: move }));
     } else {
       this.player1.send(JSON.stringify({ type: MOVE, payload: move }));
     }
+    this.moveCount++;
   }
 }
